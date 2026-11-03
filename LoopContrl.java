@@ -1,3 +1,4 @@
+import java.util.NoSuchElementException;
 import java.util.Scanner;
 
 /**
@@ -11,55 +12,56 @@ import java.util.Scanner;
 public class LoopContrl {
 
     public static void main(String[] args) {
-        Scanner input = new Scanner(System.in);
+        try (Scanner input = new Scanner(System.in)) {
+            int x = 0;
+            int y = 0;
+            boolean numbersEntered = false;
+            int choice;
 
-        int x = 0;
-        int y = 0;
-        boolean numbersEntered = false;
-        int choice;
+            try {
+                do {
+                    printMenu();
+                    choice = readInt(input, "Enter your choice (1-5): ");
 
-        do {
-            printMenu();
-            choice = readInt(input, "Enter your choice (1-5): ");
+                    switch (choice) {
+                        case 1:
+                            x = readInt(input, "Enter x: ");
+                            y = readInt(input, "Enter y: ");
+                            numbersEntered = true;
+                            break;
 
-            switch (choice) {
-                case 1:
-                    x = readInt(input, "Enter x: ");
-                    y = readInt(input, "Enter y: ");
-                    numbersEntered = true;
-                    break;
+                        case 2:
+                            if (checkEntered(numbersEntered)) {
+                                printNumbers(x, y);
+                            }
+                            break;
 
-                case 2:
-                    if (checkEntered(numbersEntered)) {
-                        printNumbers(x, y);
+                        case 3:
+                            if (checkEntered(numbersEntered)) {
+                                System.out.printf("The average of all numbers between %d and %d is %.2f%n",
+                                        x, y, findAverage(x, y));
+                            }
+                            break;
+
+                        case 4:
+                            if (checkEntered(numbersEntered)) {
+                                printPrimes(x, y);
+                            }
+                            break;
+
+                        case 5:
+                            System.out.println("Goodbye!");
+                            break;
+
+                        default:
+                            System.out.println("Invalid choice. Please enter a number from 1 to 5.");
                     }
-                    break;
-
-                case 3:
-                    if (checkEntered(numbersEntered)) {
-                        System.out.printf("The average of all numbers between %d and %d is %.2f%n",
-                                x, y, findAverage(x, y));
-                    }
-                    break;
-
-                case 4:
-                    if (checkEntered(numbersEntered)) {
-                        printPrimes(x, y);
-                    }
-                    break;
-
-                case 5:
-                    System.out.println("Goodbye!");
-                    break;
-
-                default:
-                    System.out.println("Invalid choice. Please enter a number from 1 to 5.");
+                    System.out.println();
+                } while (choice != 5);
+            } catch (NoSuchElementException e) {
+                System.out.println("\nInput ended. Goodbye!");
             }
-            System.out.println();
-
-        } while (choice != 5);
-
-        input.close();
+        }
     }
 
     // Prints the menu options
@@ -75,13 +77,17 @@ public class LoopContrl {
 
     // Reads an integer, re-prompting until the user enters a valid one
     public static int readInt(Scanner input, String prompt) {
-        System.out.print(prompt);
-        while (!input.hasNextInt()) {
+        while (true) {
+            System.out.print(prompt);
+            if (input.hasNextInt()) {
+                return input.nextInt();
+            }
+            if (!input.hasNext()) {
+                throw new NoSuchElementException("Input ended while reading an integer.");
+            }
             System.out.println("That is not a whole number. Please try again.");
             input.next(); // discard the bad input
-            System.out.print(prompt);
         }
-        return input.nextInt();
     }
 
     // Makes sure option 1 was used before options 2-4
@@ -98,27 +104,21 @@ public class LoopContrl {
         int high = Math.max(x, y);
 
         System.out.print("Numbers between " + x + " and " + y + ": ");
-        for (int i = low; i <= high; i++) {
+        for (long i = low; i <= high; i++) {
             System.out.print(i);
             if (i < high) {
                 System.out.print(", ");
             }
         }
         System.out.println();
+        System.out.println("You have completed the task.");
     }
 
     // Option 3: average of every number in the range
     public static double findAverage(int x, int y) {
         int low = Math.min(x, y);
         int high = Math.max(x, y);
-
-        long sum = 0;
-        int count = 0;
-        for (int i = low; i <= high; i++) {
-            sum += i;
-            count++;
-        }
-        return (double) sum / count;
+        return ((long) low + high) / 2.0;
     }
 
     // Option 4: print every prime number in the range
@@ -128,8 +128,8 @@ public class LoopContrl {
         boolean found = false;
 
         System.out.print("Prime numbers between " + x + " and " + y + ": ");
-        for (int i = low; i <= high; i++) {
-            if (isPrime(i)) {
+        for (long i = low; i <= high; i++) {
+            if (isPrime((int) i)) {
                 if (found) {
                     System.out.print(", ");
                 }
@@ -155,3 +155,4 @@ public class LoopContrl {
         }
         return true;
     }
+}
